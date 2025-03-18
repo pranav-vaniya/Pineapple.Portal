@@ -1,0 +1,23 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar>
+        <MudImage Src="favicon.png" Height="32" Alt="Pineapple Favicon" Class="me-4" />
+        <MudText Typo="Typo.h5">Pineapple</MudText>
+
+        <MudSpacer></MudSpacer>
+
+        <MudLink Href="/" Color="Color.Inherit">Dashboard</MudLink>
+    </MudAppBar>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
