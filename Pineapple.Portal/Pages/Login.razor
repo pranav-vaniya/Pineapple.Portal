@@ -1,0 +1,123 @@
+@page "/login"
+@layout EmptyLayout
+@using Pineapple.Portal.Models
+@using Pineapple.Portal.Services
+@using System.Text.Json
+@inject HttpClient httpClient
+@inject ISnackbar snackBar
+@inject NavigationManager navigationManager
+@inject CookieService cookieService
+
+<PageTitle>Pineapple - Login</PageTitle>
+
+<style>
+    #title,
+    #tagline {
+        font-family: 'Exo 2';
+    }
+</style>
+
+<div style="display: grid; place-items: center; height: 100vh;">
+    <MudGrid Justify="Justify.Center">
+
+        @* Left Container *@
+        <MudItem xs="4" Class="pa-0">
+            <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%;">
+                <MudImage Src="favicon.png" Height="64" Class="mb-4"></MudImage>
+                <MudText Typo="Typo.h4" id="title">PINEAPPLE</MudText>
+                <MudText Typo="Typo.body2" id="tagline">Effortless Lead Management</MudText>
+            </MudStack>
+        </MudItem>
+
+        @* divider *@
+        <MudItem Class="pa-0">
+            <MudDivider Vertical Class="mr-8 my-0" Style="height:100%;"></MudDivider>
+        </MudItem>
+
+        @* Right Container *@
+        <MudItem xs="4" Class="pa-0">
+            <MudStack Class="ma-0">
+                <MudTextField @bind-Value="loginDto.Username" Label="Username" InputType="InputType.Text"
+                    Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Person"
+                    Class="mt-0">
+                </MudTextField>
+
+                <MudTextField @bind-Value="loginDto.Password" Label="Password" InputType="@PasswordInput"
+                    Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                    OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password" OnKeyDown="HandleKeyDown">
+                </MudTextField>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleLogin" @ref="loginButton">Login
+                </MudButton>
+            </MudStack>
+        </MudItem>
+
+    </MudGrid>
+</div>
+
+@code {
+    LoginDto loginDto = new LoginDto();
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    MudButton? loginButton;
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+
+    async void HandleLogin()
+    {
+        try
+        {
+            using HttpResponseMessage responseMessage = await httpClient.PostAsJsonAsync("users/login", loginDto);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                string responseBody = await responseMessage.Content.ReadAsStringAsync();
+
+                var loginResponse = JsonSerializer.Deserialize<LoginResponseDto>(responseBody, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (loginResponse is not null && loginResponse.Token is not null)
+                {
+                    await cookieService.SetPayloadToken(loginResponse.Token);
+                }
+
+                snackBar.Add("Success", Severity.Success);
+                navigationManager.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                snackBar.Add("Incorrect username or password. Please try again.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Login Error: " + ex.Message);
+        }
+    }
+
+    void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            loginButton?.FocusAsync();
+            HandleLogin();
+        }
+    }
+}

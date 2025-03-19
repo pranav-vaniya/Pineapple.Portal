@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@using Pineapple.Portal.Services
+@inject NavigationManager navigationManager
+@inject CookieService cookieService
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -12,7 +15,8 @@
 
         <MudSpacer></MudSpacer>
 
-        <MudLink Href="/" Color="Color.Inherit">Dashboard</MudLink>
+        <MudLink Href="/" Color="Color.Inherit" Class="mx-4">Dashboard</MudLink>
+        <MudLink OnClick="HandleLogout" Color="Color.Inherit" Class="mx-4">Logout</MudLink>
     </MudAppBar>
 
     <MudMainContent>
@@ -21,3 +25,11 @@
         </MudContainer>
     </MudMainContent>
 </MudLayout>
+
+@code {
+    async void HandleLogout()
+    {
+        await cookieService.SetPayloadToken(null);
+        navigationManager.NavigateTo("/login", forceLoad: true);
+    }
+}

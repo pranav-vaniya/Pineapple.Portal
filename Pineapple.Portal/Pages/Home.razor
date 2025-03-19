@@ -1,7 +1,20 @@
 ﻿@page "/"
+@using Pineapple.Portal.Services
+@inject CookieService cookieService
+@inject NavigationManager navigationManager
 
 <PageTitle>Pineapple</PageTitle>
 
 <h1>Dashboard</h1>
 
 Welcome to Pineapple.
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if ((await cookieService.GetPayloadToken()) is null)
+        {
+            navigationManager.NavigateTo("/login", forceLoad: true);
+        }
+    }
+}
