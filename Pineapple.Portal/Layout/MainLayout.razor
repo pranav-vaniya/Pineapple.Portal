@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@using Pineapple.Portal.Services
 @inject NavigationManager navigationManager
 @inject CookieService cookieService
 
@@ -15,12 +14,12 @@
 
         <MudSpacer></MudSpacer>
 
-        <MudLink Href="/" Color="Color.Inherit" Class="mx-4">Dashboard</MudLink>
-        <MudLink OnClick="HandleLogout" Color="Color.Inherit" Class="mx-4">Logout</MudLink>
+        <MudLink Href="/" Color="Color.Inherit" Class="me-2">Dashboard</MudLink>
+        <MudLink OnClick="HandleLogout" Color="Color.Inherit" Class="ms-2">Logout</MudLink>
     </MudAppBar>
 
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pt-4">
             @Body
         </MudContainer>
     </MudMainContent>

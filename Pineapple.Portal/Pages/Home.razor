@@ -1,20 +1,70 @@
 ﻿@page "/"
-@using Pineapple.Portal.Services
+@using System.Text.Json
 @inject CookieService cookieService
 @inject NavigationManager navigationManager
+@inject HttpClient httpClient
 
 <PageTitle>Pineapple</PageTitle>
 
-<h1>Dashboard</h1>
-
-Welcome to Pineapple.
+@if (currentUserRole is not null)
+{
+    if (currentUserRole == UserRoles.ClientAdmin)
+    {
+        <ClientAdminDashboard></ClientAdminDashboard>
+    }
+    else if (currentUserRole == UserRoles.Manager)
+    {
+        <ManagerDashboard></ManagerDashboard>
+    }
+    else if (currentUserRole == UserRoles.SalesRep)
+    {
+        <SalesRepDashboard></SalesRepDashboard>
+    }
+    else
+    {
+        <p>Is your role set correctly?</p>
+    }
+}
 
 @code {
+    Me? me = new Me();
+    string? userPayloadToken = null, currentUserRole = null;
+
     protected override async Task OnInitializedAsync()
     {
-        if ((await cookieService.GetPayloadToken()) is null)
+        userPayloadToken = await cookieService.GetPayloadToken();
+
+        if (string.IsNullOrEmpty(userPayloadToken))
         {
             navigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        try
+        {
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "users/me");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userPayloadToken);
+
+            using HttpResponseMessage responseMessage = await httpClient.SendAsync(request);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                string responseBody = await responseMessage.Content.ReadAsStringAsync();
+
+                me = JsonSerializer.Deserialize<Me>(responseBody, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (me?.User is not null)
+                {
+                    currentUserRole = me.User.Role;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Me error in dashboard: " + ex.Message);
         }
     }
 }

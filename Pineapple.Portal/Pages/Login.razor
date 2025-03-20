@@ -1,7 +1,5 @@
 @page "/login"
 @layout EmptyLayout
-@using Pineapple.Portal.Models
-@using Pineapple.Portal.Services
 @using System.Text.Json
 @inject HttpClient httpClient
 @inject ISnackbar snackBar
@@ -56,7 +54,11 @@
 </div>
 
 @code {
-    LoginDto loginDto = new LoginDto();
+    @* LoginDto loginDto = new LoginDto(); *@
+
+    @* for development only *@
+    LoginDto loginDto = new LoginDto { Username = "salesrep8", Password = "pass" };
+
     bool isShow;
     InputType PasswordInput = InputType.Password;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;

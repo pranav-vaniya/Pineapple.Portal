@@ -1,0 +1,85 @@
+@using System.Text.Json
+@inject HttpClient httpClient
+@inject CookieService cookieService
+@inject NavigationManager navigationManager
+
+@if (areLeadsFetched == false)
+{
+    <p>Fetching Leads ...</p>
+}
+else
+{
+    <MudStack Row StretchItems="StretchItems.All">
+        @foreach (string status in leadStatuses)
+        {
+            <MudPaper Outlined Class="rounded-0 pa-2">
+                <MudText Typo="Typo.h6" Align="Align.Center">@status</MudText>
+                <MudText Typo="Typo.h4" Align="Align.Center">@statusCounts[status]</MudText>
+            </MudPaper>
+        }
+    </MudStack>
+}
+
+
+@code {
+    bool areLeadsFetched = false;
+    LeadResponse? leadResponse = new LeadResponse();
+    int totalLeads = 0;
+    List<Lead> leads = new List<Lead>();
+    List<string> leadStatuses = LeadStatuses.GetAll();
+    Dictionary<string, int> statusCounts = new Dictionary<string, int>();
+    string? userPayloadToken = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userPayloadToken = await cookieService.GetPayloadToken();
+
+        if (string.IsNullOrEmpty(userPayloadToken))
+        {
+            navigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        try
+        {
+            string query = "leads?depth=0&limit=100000&select[assignedTo]=false&select[createdBy]=false&select[modifiedBy]=false";
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, query);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userPayloadToken);
+
+            using HttpResponseMessage responseMessage = await httpClient.SendAsync(request);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                string responseBody = await responseMessage.Content.ReadAsStringAsync();
+
+                leadResponse = JsonSerializer.Deserialize<LeadResponse>(responseBody, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (leadResponse is not null)
+                {
+                    totalLeads = leadResponse.TotalDocs;
+                    leads = leadResponse.Docs;
+
+                    foreach (var key in leadStatuses)
+                    {
+                        statusCounts[key] = 0;
+                    }
+
+                    for (int i = 0; i < leads.Count(); i++)
+                    {
+                        statusCounts[leads[i].Status] += 1;
+                    }
+
+                    areLeadsFetched = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error in Sales Rep Dashboard: " + ex.Message);
+        }
+    }
+}
