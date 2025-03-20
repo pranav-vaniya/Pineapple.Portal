@@ -1,0 +1,48 @@
+@inject NoteService noteService
+
+@if (areNotesFetched == false)
+{
+    <p>Fetching your Notes ...</p>
+}
+else
+{
+    @* notes title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Recent Notes</MudText>
+        <MudToggleIconButton @bind-Toggled="expandNotesStack" Icon="@Icons.Material.Filled.ExpandMore"
+            ToggledIcon="@Icons.Material.Filled.ExpandLess" title="@(expandNotesStack ? "Show Less" : "Show All")"
+            Color="Color.Primary" ToggledColor="Color.Secondary">
+        </MudToggleIconButton>
+        <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Create New Note
+        </MudButton>
+    </MudStack>
+
+    @* notes *@
+    <MudPaper Elevation="0" Class="mb-4 pa-0 overflow-scroll rounded-0">
+        <MudStack Wrap="@(expandNotesStack? Wrap.Wrap: Wrap.NoWrap)" Spacing="4" Row AlignItems="AlignItems.Stretch"
+            StretchItems="StretchItems.All">
+            @foreach (NoteEntity note in notes)
+            {
+                <MudPaper Outlined Class="rounded-0 px-4 py-3" MinWidth="25%">
+                    <MudText Typo="Typo.body1" Class="mb-2">@note.Title</MudText>
+                    <MudDivider Class="mb-3"></MudDivider>
+                    <MudText Typo="Typo.body2" Class="mb-2">@note.Note</MudText>
+                    <MudText Typo="Typo.caption">@note.UpdatedAt</MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    </MudPaper>
+}
+
+@code {
+    bool areNotesFetched = false;
+    bool expandNotesStack = false;
+    List<NoteEntity> notes = new List<NoteEntity>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        notes = await noteService.GetAllNotes();
+        areNotesFetched = true;
+    }
+}

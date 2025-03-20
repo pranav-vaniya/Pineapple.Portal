@@ -1,0 +1,51 @@
+@inject LeadService leadService
+
+@if (areLeadsFetched == false)
+{
+    <p>Fetching your Leads ...</p>
+}
+else
+{
+    @* lead count title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Current Lead Counts</MudText>
+        <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Add New Lead
+        </MudButton>
+    </MudStack>
+
+    @* lead counts *@
+    <MudStack Row StretchItems="StretchItems.All" Class="mb-4">
+        @foreach (string status in leadStatuses)
+        {
+            <MudPaper Outlined Class="rounded-0 pa-2">
+                <MudText Typo="Typo.h6" Align="Align.Center">@status</MudText>
+                <MudText Typo="Typo.h4" Align="Align.Center">@statusCounts[status]</MudText>
+            </MudPaper>
+        }
+    </MudStack>
+}
+
+@code {
+    bool areLeadsFetched = false;
+    List<Lead> leads = new List<Lead>();
+    List<string> leadStatuses = LeadStatuses.GetAll();
+    Dictionary<string, int> statusCounts = new Dictionary<string, int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        leads = await leadService.GetAllLeads();
+
+        foreach (var key in leadStatuses)
+        {
+            statusCounts[key] = 0;
+        }
+
+        for (int i = 0; i < leads.Count(); i++)
+        {
+            statusCounts[leads[i].Status] += 1;
+        }
+
+        areLeadsFetched = true;
+    }
+}
