@@ -11,5 +11,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:3000/api/") });
 builder.Services.AddMudServices();
 builder.Services.AddScoped<CookieService>();
+builder.Services.AddScoped<LeadService>();
+builder.Services.AddScoped<NoteService>();
 
 await builder.Build().RunAsync();

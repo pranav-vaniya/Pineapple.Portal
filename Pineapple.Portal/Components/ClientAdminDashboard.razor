@@ -1,1 +1,97 @@
-Client Admin
+@using System.Text.Json
+@inject HttpClient httpClient
+@inject CookieService cookieService
+@inject LeadService leadService
+@inject NoteService noteService
+@inject NavigationManager navigationManager
+
+@if (isDataFetched == false)
+{
+    <p>Fetching Data ...</p>
+}
+else
+{
+    @* lead count title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Current Lead Counts</MudText>
+        <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Add New Lead
+        </MudButton>
+    </MudStack>
+
+    @* lead counts *@
+    <MudStack Row StretchItems="StretchItems.All" Class="mb-4">
+        @foreach (string status in leadStatuses)
+        {
+            <MudPaper Outlined Class="rounded-0 pa-2">
+                <MudText Typo="Typo.h6" Align="Align.Center">@status</MudText>
+                <MudText Typo="Typo.h4" Align="Align.Center">@statusCounts[status]</MudText>
+            </MudPaper>
+        }
+    </MudStack>
+
+    @* notes title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Recent Notes</MudText>
+        <MudToggleIconButton @bind-Toggled="expandNotesStack" Icon="@Icons.Material.Filled.ExpandMore"
+            ToggledIcon="@Icons.Material.Filled.ExpandLess" title="@(expandNotesStack ? "Show Less" : "Show All")"
+            Color="Color.Primary" ToggledColor="Color.Secondary">
+        </MudToggleIconButton>
+        <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Create New Note
+        </MudButton>
+    </MudStack>
+
+    @* notes *@
+    <MudPaper Elevation="0" Class="mb-4 pa-0 overflow-scroll rounded-0">
+        <MudStack Wrap="@(expandNotesStack? Wrap.Wrap: Wrap.NoWrap)" Spacing="4" Row AlignItems="AlignItems.Stretch"
+            StretchItems="StretchItems.All">
+            @foreach (NoteEntity note in notes)
+            {
+                <MudPaper Outlined Class="rounded-0 px-4 py-3" MinWidth="25%">
+                    <MudText Typo="Typo.body1" Class="mb-2">@note.Title</MudText>
+                    <MudDivider Class="mb-3"></MudDivider>
+                    <MudText Typo="Typo.body2" Class="mb-2">@note.Note</MudText>
+                    <MudText Typo="Typo.caption">@note.UpdatedAt</MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    </MudPaper>
+}
+
+
+@code {
+    bool isDataFetched = false;
+    List<Lead> leads = new List<Lead>();
+    List<NoteEntity> notes = new List<NoteEntity>();
+    List<string> leadStatuses = LeadStatuses.GetAll();
+    Dictionary<string, int> statusCounts = new Dictionary<string, int>();
+    string? userPayloadToken = null;
+    bool expandNotesStack = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userPayloadToken = await cookieService.GetPayloadToken();
+
+        if (string.IsNullOrEmpty(userPayloadToken))
+        {
+            navigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        leads = await leadService.GetAllLeads();
+        notes = await noteService.GetAllNotes();
+
+        foreach (var key in leadStatuses)
+        {
+            statusCounts[key] = 0;
+        }
+
+        for (int i = 0; i < leads.Count(); i++)
+        {
+            statusCounts[leads[i].Status] += 1;
+        }
+
+        isDataFetched = true;
+    }
+}
