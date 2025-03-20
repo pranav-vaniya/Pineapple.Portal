@@ -1,0 +1,54 @@
+@inject LeadService leadService
+
+@if (areLeadsFetched == false)
+{
+    <p>Fetching your Leads ...</p>
+}
+else
+{
+    @* lead count title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Leads</MudText>
+        <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Add New Lead
+        </MudButton>
+    </MudStack>
+
+    @* lead table *@
+    <MudDataGrid T="Lead" Items="@leads" Filterable FilterMode="DataGridFilterMode.ColumnFilterRow" Class="mb-4">
+        <Columns>
+            <PropertyColumn Property="x => x.FirstName" Title="First Name"></PropertyColumn>
+            <PropertyColumn Property="x => x.LastName" Title="Last Name"></PropertyColumn>
+            <PropertyColumn Property="x => x.Email" Title="Email"></PropertyColumn>
+            <PropertyColumn Property="x => x.Status" Title="Status"></PropertyColumn>
+            <PropertyColumn Property="x => x.Note" Title="Note"></PropertyColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Lead"></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code {
+    bool areLeadsFetched = false;
+    List<Lead> leads = new List<Lead>();
+    List<string> leadStatuses = LeadStatuses.GetAll();
+    Dictionary<string, int> statusCounts = new Dictionary<string, int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        leads = await leadService.GetAllLeads();
+
+        foreach (var key in leadStatuses)
+        {
+            statusCounts[key] = 0;
+        }
+
+        for (int i = 0; i < leads.Count(); i++)
+        {
+            statusCounts[leads[i].Status] += 1;
+        }
+
+        areLeadsFetched = true;
+    }
+}
