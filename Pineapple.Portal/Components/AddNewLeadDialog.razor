@@ -1,0 +1,71 @@
+@inject LeadService leadService
+@inject ISnackbar snackBar
+
+<MudDialog Style="min-width: 35%;">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Align="Align.Center">Add New Lead</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudText Typo="Typo.body1" Class="mb-4">Fill in the details below to add a New Lead.</MudText>
+        <MudTextField @bind-Value="newLead.FirstName" Label="First Name" Variant="Variant.Outlined"
+            Margin="Margin.Dense" Class="mb-4" Required></MudTextField>
+        <MudTextField @bind-Value="newLead.LastName" Label="Last Name" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Class="mb-4">
+        </MudTextField>
+        <MudTextField @bind-Value="newLead.Email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Class="mb-4" Required InputType="InputType.Email">
+        </MudTextField>
+        <MudTextField @bind-Value="newLead.PhoneNumber" Label="Phone Number" Variant="Variant.Outlined"
+            Margin="Margin.Dense" Class="mb-4">
+        </MudTextField>
+        <MudSelect @bind-Value="newLead.LeadSource" Label="Lead Source" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Class="mb-4" Required>
+            @foreach (string source in leadSources)
+            {
+                <MudSelectItem Value="@source">@source</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="newLead.LeadStatus" Label="Lead Status" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Class="mb-4" Required>
+            @foreach (string status in leadStatuses)
+            {
+                <MudSelectItem Value="@status">@status</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value="newLead.Note" Label="Note" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Lines="4">
+        </MudTextField>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Submit" StartIcon="@Icons.Material.Filled.Add">Add New Lead
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+    AddNewLeadDto newLead = new AddNewLeadDto();
+    List<string> leadSources = LeadSources.GetAll();
+    List<string> leadStatuses = LeadStatuses.GetAll();
+
+    private async void Submit()
+    {
+        bool isNewLeadAdded = await leadService.AddNewLead(newLead);
+
+        if (isNewLeadAdded)
+        {
+            snackBar.Add("New Lead added successfully.", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            snackBar.Add("Failed to add new lead.", Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

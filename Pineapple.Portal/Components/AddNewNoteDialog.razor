@@ -1,0 +1,46 @@
+@inject NoteService noteService
+@inject ISnackbar snackBar
+
+<MudDialog Style="min-width: 35%;">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Align="Align.Center">Add New Note</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudText Typo="Typo.body1" Class="mb-4">Fill in the details below to add a New Note.</MudText>
+        <MudTextField @bind-Value="newNote.Title" Label="Title" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Class="mb-4" Required></MudTextField>
+        <MudTextField @bind-Value="newNote.Note" Label="Note" Variant="Variant.Outlined" Margin="Margin.Dense"
+            Class="mb-4" Lines="8">
+        </MudTextField>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Submit" StartIcon="@Icons.Material.Filled.Add">Create New Note
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+    AddNewNoteDto newNote = new AddNewNoteDto();
+
+    private async void Submit()
+    {
+        bool isNewNoteCreated = await noteService.AddNewNote(newNote);
+
+        if (isNewNoteCreated)
+        {
+            snackBar.Add("New Note created successfully.", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            snackBar.Add("Failed to create new note.", Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

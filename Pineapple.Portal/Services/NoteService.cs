@@ -1,3 +1,5 @@
+using System.Net;
+using System.Text;
 using System.Text.Json;
 using Pineapple.Portal.Models;
 
@@ -51,5 +53,37 @@ public class NoteService
         }
 
         return new List<NoteEntity>();
+    }
+
+    public async Task<bool> AddNewNote(AddNewNoteDto addNewNoteDto)
+    {
+        string? userPayloadToken = await _cookieService.GetPayloadToken();
+
+        if (userPayloadToken is not null)
+        {
+            try
+            {
+                using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "notes");
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userPayloadToken);
+                request.Content = new StringContent(
+                    JsonSerializer.Serialize(addNewNoteDto, new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    }),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                return response.StatusCode == HttpStatusCode.Created;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in Notes Service: " + ex.Message);
+            }
+        }
+
+        return false;
     }
 }
