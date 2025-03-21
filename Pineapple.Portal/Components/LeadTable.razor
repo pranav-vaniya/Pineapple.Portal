@@ -7,7 +7,7 @@
 }
 else
 {
-    @* lead count title *@
+    @* lead title *@
     <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
         <MudText Typo="Typo.h6">Leads</MudText>
         <MudSpacer></MudSpacer>
@@ -34,23 +34,10 @@ else
 @code {
     bool areLeadsFetched = false;
     List<Lead> leads = new List<Lead>();
-    List<string> leadStatuses = LeadStatuses.GetAll();
-    Dictionary<string, int> statusCounts = new Dictionary<string, int>();
 
     protected override async Task OnInitializedAsync()
     {
         leads = await leadService.GetAllLeads();
-
-        foreach (var key in leadStatuses)
-        {
-            statusCounts[key] = 0;
-        }
-
-        for (int i = 0; i < leads.Count(); i++)
-        {
-            statusCounts[leads[i].Status] += 1;
-        }
-
         areLeadsFetched = true;
     }
 

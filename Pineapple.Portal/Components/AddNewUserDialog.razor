@@ -1,0 +1,102 @@
+@inject UserService userService
+@inject ISnackbar snackBar
+
+<MudDialog Style="min-width: 35%;">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Align="Align.Center">Add New User</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        @if (areUsersFetched == false)
+        {
+            <p>Loading ...</p>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1" Class="mb-4">Fill in the details below to add a New User.</MudText>
+            <MudTextField @bind-Value="newUser.FirstName" Label="First Name" Variant="Variant.Outlined"
+                Margin="Margin.Dense" Class="mb-4" Required></MudTextField>
+            <MudTextField @bind-Value="newUser.LastName" Label="Last Name" Variant="Variant.Outlined" Margin="Margin.Dense"
+                Class="mb-4">
+            </MudTextField>
+            <MudTextField @bind-Value="newUser.Email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense"
+                Class="mb-4" InputType="InputType.Email">
+            </MudTextField>
+            <MudSelect @bind-Value="newUser.Role" Label="Role" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4"
+                Required>
+                @foreach (string role in userRoles)
+                {
+                    <MudSelectItem Value="@role">@role</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect @bind-Value="newUser.ReportsTo" Label="Reports To"
+                HelperText="If the User's Role is Sales Representative, Please select the Manager that the User Reports to."
+                Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4">
+                <MudSelectItem Value="0">None</MudSelectItem>
+                @foreach (User user in users)
+                {
+                    if (user.Role == UserRoles.Manager)
+                    {
+                        <MudSelectItem Value="@user.Id">@user.FirstName @user.LastName (@user.Username)</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudTextField @bind-Value="newUser.Username" Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense"
+                Class="mb-4" Required></MudTextField>
+            <MudTextField @bind-Value="newUser.Password" Label="Password" Variant="Variant.Outlined" Margin="Margin.Dense"
+                Class="mb-4" Required></MudTextField>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">Cancel</MudButton>
+        @if (areUsersFetched == true)
+        {
+            <MudButton Color="Color.Success" OnClick="Submit" StartIcon="@Icons.Material.Filled.Add">Add New Lead
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+    AddNewUserDtoWithoutNullReportsTo newUser = new AddNewUserDtoWithoutNullReportsTo();
+    List<string> userRoles = UserRoles.GetAll();
+    List<User> users = new List<User>();
+    bool areUsersFetched = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllUsers();
+        areUsersFetched = true;
+    }
+
+    private async void Submit()
+    {
+        AddNewUserDto user = new AddNewUserDto
+        {
+            FirstName = newUser.FirstName,
+            LastName = newUser.LastName,
+            Role = newUser.Role,
+            ReportsTo = (newUser.ReportsTo == 0) ? null : newUser.ReportsTo,
+            Email = newUser.Email,
+            Password = newUser.Password,
+            Username = newUser.Username
+        };
+
+        bool isNewUserAdded = await userService.AddNewUser(user);
+
+        if (isNewUserAdded)
+        {
+            snackBar.Add("New User added successfully.", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            snackBar.Add("Failed to add new user.", Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

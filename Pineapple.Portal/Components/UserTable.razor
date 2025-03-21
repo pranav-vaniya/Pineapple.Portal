@@ -1,0 +1,58 @@
+@inject UserService userService
+@inject IDialogService DialogService
+
+@if (areUsersFetched == false)
+{
+    <p>Fetching your Users ...</p>
+}
+else
+{
+    @* user title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Users</MudText>
+        <MudSpacer></MudSpacer>
+        <MudButton @onclick="OpenAddNewUserDialogAsync" Variant="Variant.Text" Color="Color.Primary"
+            StartIcon="@Icons.Material.Filled.Add">Add New User
+        </MudButton>
+    </MudStack>
+
+    @* user table *@
+    <MudDataGrid T="User" Items="@users" Filterable FilterMode="DataGridFilterMode.ColumnFilterRow" Class="mb-4">
+        <Columns>
+            <PropertyColumn Property="x => x.FirstName" Title="First Name"></PropertyColumn>
+            <PropertyColumn Property="x => x.LastName" Title="Last Name"></PropertyColumn>
+            <PropertyColumn Property="x => x.Role" Title="Role"></PropertyColumn>
+            <PropertyColumn Property="x => x.ReportsTo" Title="Reports To"></PropertyColumn>
+            <PropertyColumn Property="x => x.Username" Title="Username"></PropertyColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="User"></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code {
+    bool areUsersFetched = false;
+    List<User> users = new List<User>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllUsers();
+        areUsersFetched = true;
+    }
+
+    private async Task OpenAddNewUserDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = await DialogService.ShowAsync<AddNewUserDialog>("Simple Dialog", options);
+
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            areUsersFetched = false;
+            users = await userService.GetAllUsers();
+            areUsersFetched = true;
+        }
+    }
+}

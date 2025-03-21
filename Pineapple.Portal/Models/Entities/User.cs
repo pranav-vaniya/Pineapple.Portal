@@ -49,3 +49,9 @@ public class MeUser
     public int LoginAttempts { get; set; }
     public string Collection { get; set; } = string.Empty;
 }
+
+class UserApiResponse
+{
+    public List<User> Docs { get; set; } = new List<User>();
+    public int TotalDocs { get; set; }
+}

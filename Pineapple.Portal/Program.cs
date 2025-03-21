@@ -13,5 +13,6 @@ builder.Services.AddMudServices();
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<NoteService>();
+builder.Services.AddScoped<UserService>();
 
 await builder.Build().RunAsync();

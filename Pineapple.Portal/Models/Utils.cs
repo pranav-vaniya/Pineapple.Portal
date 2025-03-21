@@ -10,7 +10,7 @@ public static class UserRoles
 
     public static List<string> GetAll()
     {
-        return typeof(LeadSources)
+        return typeof(UserRoles)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
             .Select(fi => fi.GetRawConstantValue()?.ToString()!)
