@@ -54,11 +54,7 @@
 </div>
 
 @code {
-    @* LoginDto loginDto = new LoginDto(); *@
-
-    @* for development only *@
-    LoginDto loginDto = new LoginDto { Username = "clientadmin1", Password = "pass" };
-
+    LoginDto loginDto = new LoginDto();
     bool isShow;
     InputType PasswordInput = InputType.Password;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;

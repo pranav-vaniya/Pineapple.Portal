@@ -24,7 +24,7 @@ public class LeadService
         {
             try
             {
-                string query = "leads?depth=0&limit=100000&select[assignedTo]=false&select[createdBy]=false&select[modifiedBy]=false";
+                string query = "leads?depth=0&limit=100000&select[createdBy]=false&select[modifiedBy]=false";
 
                 using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, query);
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userPayloadToken);

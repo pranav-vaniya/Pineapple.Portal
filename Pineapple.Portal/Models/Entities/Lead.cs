@@ -10,6 +10,7 @@ public class Lead
     public string Source { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string? Note { get; set; }
+    public int AssignedTo { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }

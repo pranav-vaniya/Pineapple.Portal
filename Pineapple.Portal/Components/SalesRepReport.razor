@@ -1,0 +1,42 @@
+@inject UserService userService
+
+@if (isDataFetched == false)
+{
+    <MudSkeleton Animation="Animation.Wave" Class="mb-4"></MudSkeleton>
+}
+else
+{
+    @* user title *@
+    <MudStack Row Class="mb-2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">Sales Representatives</MudText>
+    </MudStack>
+
+    @* user table *@
+    <MudDataGrid T="SalesRep" Items="@salesReps" Filterable FilterMode="DataGridFilterMode.ColumnFilterRow" Class="mb-4">
+        <Columns>
+            <PropertyColumn Property="x => x.FirstName" Title="First Name"></PropertyColumn>
+            <PropertyColumn Property="x => x.LastName" Title="Last Name"></PropertyColumn>
+            @foreach (var key in leadStatuses)
+            {
+                <PropertyColumn Property="@(x => x.StatCounts.ContainsKey(key) ? x.StatCounts[key] : -1)" Title="@key">
+                </PropertyColumn>
+            }
+        </Columns>
+
+        <PagerContent>
+            <MudDataGridPager T="SalesRep"></MudDataGridPager>
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code {
+    bool isDataFetched = false;
+    List<SalesRep> salesReps = new List<SalesRep>();
+    List<string> leadStatuses = LeadStatuses.GetAll();
+
+    protected override async Task OnInitializedAsync()
+    {
+        salesReps = await userService.GetSalesReps();
+        isDataFetched = true;
+    }
+}
