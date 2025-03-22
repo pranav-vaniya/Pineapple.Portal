@@ -1,0 +1,52 @@
+@inject UserService userService
+
+@if (isDataFetched == false)
+{
+
+    <MudSkeleton Animation="Animation.Wave" Class="mb-4"></MudSkeleton>
+}
+else
+{
+    <MudStack Row AlignItems="AlignItems.Center" Class="mb-4">
+        <MudAvatar Size="Size.Large" Elevation="0" title="Me">
+            <MudImage Src="luffy.jpg" Alt="An image of a Pirate!"></MudImage>
+        </MudAvatar>
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h5">@me.User.FirstName @(me.User.LastName is not null ? me.User.LastName : "")</MudText>
+            <MudText Typo="Typo.body1">@me.User.Role</MudText>
+        </MudStack>
+    </MudStack>
+
+    <MudDivider Class="mb-4"></MudDivider>
+
+    @if (me.User.ReportsTo is not null)
+    {
+        <MudText Typo="Typo.body1" Class="mb-4">Reports to: @me.User.ReportsTo.FirstName @(me.User.ReportsTo.LastName is not null ? me.User.ReportsTo.LastName : "")</MudText>
+    }
+
+    @if(me.User.Email is not null)
+    {
+        <MudText Typo="Typo.body1" Class="mb-4">Email: @me.User.Email</MudText>
+    }
+
+    @if(me.User.CreatedBy is not null)
+    {
+        <MudText Typo="Typo.body1" Class="mb-4">Created By: @me.User.CreatedBy.FirstName @(me.User.CreatedBy.LastName is not null ? me.User.CreatedBy.LastName : "") at @me.User.CreatedAt</MudText>
+    }
+
+    @if(me.User.ModifiedBy is not null)
+    {
+        <MudText Typo="Typo.body1" Class="mb-4">Modified By: @me.User.ModifiedBy.FirstName @(me.User.ModifiedBy.LastName is not null ? me.User.ModifiedBy.LastName : "") at @me.User.UpdatedAt</MudText>
+    }
+}
+
+@code {
+    Me me = new Me();
+    bool isDataFetched = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        me = await userService.GetMe();
+        isDataFetched = true;
+    }
+}

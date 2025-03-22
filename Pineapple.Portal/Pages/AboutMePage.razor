@@ -1,0 +1,23 @@
+@page "/me"
+@inject CookieService cookieService
+@inject UserService userService
+@inject NavigationManager navigationManager
+
+<PageTitle>Pineapple - Me</PageTitle>
+
+<AboutMe></AboutMe>
+
+@code {
+    string? userPayloadToken = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userPayloadToken = await cookieService.GetPayloadToken();
+
+        if (string.IsNullOrEmpty(userPayloadToken))
+        {
+            navigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+    }
+}
