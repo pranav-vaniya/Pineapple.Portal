@@ -1,4 +1,37 @@
-<LeadCounts></LeadCounts>
-<Notes></Notes>
-<UserTable></UserTable>
-<LeadTable></LeadTable>
+<MudExpansionPanels Class="mb-4" Outlined>
+    <MudExpansionPanel Text="Options" Expanded="false">
+        <MudSwitch @bind-Value="showLeadCounts" Label="Display Lead Counts" Color="Color.Primary"></MudSwitch>
+        <MudSwitch @bind-Value="showNotes" Label="Display Notes" Color="Color.Primary"></MudSwitch>
+        <MudSwitch @bind-Value="showUserTable" Label="Display User Table" Color="Color.Primary"></MudSwitch>
+        <MudSwitch @bind-Value="showLeadTable" Label="Display Lead Table" Color="Color.Primary"></MudSwitch>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@if (showLeadCounts == true)
+{
+    <LeadCounts></LeadCounts>
+}
+
+@if (showNotes == true)
+{
+    <Notes></Notes>
+}
+
+@if (showUserTable == true)
+{
+    <UserTable></UserTable>
+}
+
+@if (showLeadTable == true)
+{
+    <LeadTable></LeadTable>
+}
+
+@if (showLeadCounts == false && showNotes == false && showUserTable == false && showLeadTable == false)
+{
+    <MudText Typo="Typo.h6" Align="Align.Center">Why would you not want to see anything?</MudText>
+}
+
+@code {
+    bool showLeadCounts = false, showNotes = false, showUserTable = true, showLeadTable = false;
+}
