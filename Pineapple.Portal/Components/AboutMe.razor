@@ -7,7 +7,7 @@
 }
 else
 {
-    <MudStack Row AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16 mb-16">
         <MudAvatar Size="Size.Large" Elevation="0" title="Me">
             <MudImage Src="luffy.jpg" Alt="An image of a Pirate!"></MudImage>
         </MudAvatar>
@@ -17,27 +17,47 @@ else
         </MudStack>
     </MudStack>
 
-    <MudDivider Class="mb-4"></MudDivider>
+    <MudStack Row Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly">
+        @if (me.User.Email is not null)
+        {
+            <MudPaper Elevation="0" Class="border-0">
+                <MudText Typo="Typo.caption">Email</MudText>
+                <MudText Typo="Typo.body1" Class="mb-4">@me.User.Email</MudText>
+            </MudPaper>
+        }
 
-    @if (me.User.ReportsTo is not null)
-    {
-        <MudText Typo="Typo.body1" Class="mb-4">Reports to: @me.User.ReportsTo.FirstName @(me.User.ReportsTo.LastName is not null ? me.User.ReportsTo.LastName : "")</MudText>
-    }
+        @if (me.User.ReportsTo is not null)
+        {
+            <MudPaper Elevation="0" Class="border-0">
+                <MudText Typo="Typo.body2">Reports to</MudText>
+                <MudText Typo="Typo.h6" Class="mb-4">@me.User.ReportsTo.FirstName
+                    @(me.User.ReportsTo.LastName is not null ? me.User.ReportsTo.LastName : "")
+                </MudText>
+            </MudPaper>
+        }
 
-    @if(me.User.Email is not null)
-    {
-        <MudText Typo="Typo.body1" Class="mb-4">Email: @me.User.Email</MudText>
-    }
+        @if (me.User.CreatedBy is not null)
+        {
+            <MudPaper Elevation="0" Class="border-0">
+                <MudText Typo="Typo.body2">Created By</MudText>
+                <MudText Typo="Typo.h6">@me.User.CreatedBy.FirstName
+                    @(me.User.CreatedBy.LastName is not null ? me.User.CreatedBy.LastName : "")
+                </MudText>
+                <MudText Typo="Typo.caption">@me.User.CreatedAt</MudText>
+            </MudPaper>
+        }
 
-    @if(me.User.CreatedBy is not null)
-    {
-        <MudText Typo="Typo.body1" Class="mb-4">Created By: @me.User.CreatedBy.FirstName @(me.User.CreatedBy.LastName is not null ? me.User.CreatedBy.LastName : "") at @me.User.CreatedAt</MudText>
-    }
-
-    @if(me.User.ModifiedBy is not null)
-    {
-        <MudText Typo="Typo.body1" Class="mb-4">Modified By: @me.User.ModifiedBy.FirstName @(me.User.ModifiedBy.LastName is not null ? me.User.ModifiedBy.LastName : "") at @me.User.UpdatedAt</MudText>
-    }
+        @if (me.User.ModifiedBy is not null)
+        {
+            <MudPaper Elevation="0" Class="border-0">
+                <MudText Typo="Typo.body2">Modified By</MudText>
+                <MudText Typo="Typo.h6">@me.User.ModifiedBy.FirstName
+                    @(me.User.ModifiedBy.LastName is not null ? me.User.ModifiedBy.LastName : "")
+                </MudText>
+                <MudText Typo="Typo.caption">@me.User.UpdatedAt</MudText>
+            </MudPaper>
+        }
+    </MudStack>
 }
 
 @code {
